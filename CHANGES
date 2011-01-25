@@ -1,5 +1,8 @@
 Revision history for Perl module Dist-Zilla-PluginBundle-Author-DOHERTY
 
+0.011     2011-01-24
+    * Use new name for Pod::Weaver pluginbundle
+
 0.010     2011-01-24
     * Renamed to Dist::Zilla::PluginBundle::Author::DOHERTY
     * Added support for using SurgicalPodWeaver via surgical in dist.ini

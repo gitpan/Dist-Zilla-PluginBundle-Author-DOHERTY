@@ -4,7 +4,7 @@ use warnings;
 
 package Dist::Zilla::PluginBundle::Author::DOHERTY;
 BEGIN {
-  $Dist::Zilla::PluginBundle::Author::DOHERTY::VERSION = '0.010';
+  $Dist::Zilla::PluginBundle::Author::DOHERTY::VERSION = '0.011';
 }
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 
@@ -40,7 +40,7 @@ use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choo
 use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
 
 use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
-use Pod::Weaver::PluginBundle::DOHERTY            0.002 qw();
+use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
 
 with 'Dist::Zilla::Role::PluginBundle::Easy';
 
@@ -135,8 +135,8 @@ sub configure {
 
         # File munging
         ( $self->surgical
-            ? 'SurgicalPodWeaver'#[ 'SurgicalPodWeaver' => { config_plugin => '@DOHERTY' } ]
-            : [ 'PodWeaver'         => { config_plugin => '@DOHERTY' } ]
+            ? [ 'SurgicalPodWeaver' => { config_plugin => '@Author::DOHERTY' } ]
+            : [ 'PodWeaver'         => { config_plugin => '@Author::DOHERTY' } ]
         ),
 
         # Build system
@@ -193,12 +193,12 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.010
+version 0.011
 
 =head1 SYNOPSIS
 
     # in dist.ini
-    [@DOHERTY]
+    [@Author::DOHERTY]
 
 =head1 DESCRIPTION
 
