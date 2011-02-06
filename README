@@ -3,7 +3,7 @@ NAME
     DOHERTY
 
 VERSION
-    version 0.011
+    version 0.012
 
 SYNOPSIS
         # in dist.ini
@@ -30,6 +30,7 @@ DESCRIPTION
         [InstallGuide]
         [ReadmeFromPod]
         [CopyReadmeFromBuild]
+        [CopyMakefilePLFromBuild]
 
         [Git::NextVersion]
         [PkgVersion]
@@ -56,7 +57,7 @@ USAGE
 
     *   "bugtracker" specifies a URL for your bug tracker. This is passed to
         "Bugtracker", so the same interpolation rules apply. Defaults to
-        "http://github.com/doherty/%s/issues'".
+        "http://github.com/doherty/%s/issues".
 
     *   "add_tests" is a comma-separated list of testing plugins to add to
         "TestingMania".

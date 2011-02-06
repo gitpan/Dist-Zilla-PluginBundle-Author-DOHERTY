@@ -4,7 +4,7 @@ use warnings;
 
 package Dist::Zilla::PluginBundle::Author::DOHERTY;
 BEGIN {
-  $Dist::Zilla::PluginBundle::Author::DOHERTY::VERSION = '0.011';
+  $Dist::Zilla::PluginBundle::Author::DOHERTY::VERSION = '0.012';
 }
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 
@@ -32,12 +32,13 @@ use Dist::Zilla::Plugin::NextRelease                    qw();
 use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
 use Dist::Zilla::Plugin::Git::Commit                    qw();
 use Dist::Zilla::Plugin::Git::Tag                       qw();
-use Dist::Zilla::PluginBundle::TestingMania             qw();
+use Dist::Zilla::PluginBundle::TestingMania       0.003 qw(); # better deps tree & PodLinkTests
 use Dist::Zilla::Plugin::InstallRelease           0.006 qw(); # to detect failed installs
 use Dist::Zilla::Plugin::CheckExtraTests                qw();
 use Dist::Zilla::Plugin::GithubUpdate              0.03 qw(); # Support for p3rl.org
 use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
 use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
+use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0015 qw(); # to avoid circular dependencies
 
 use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
 use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
@@ -160,6 +161,7 @@ sub configure {
         # After release
         [ 'GithubUpdate' => { cpan => 1, p3rl => 1 } ],
         'CopyReadmeFromBuild',
+        'CopyMakefilePLFromBuild',
         'Git::Commit',
         [ 'Git::Tag' => { tag_format => $self->tag_format } ],
         'InstallRelease',
@@ -182,7 +184,7 @@ no Moose;
 1;
 
 
-
+__END__
 =pod
 
 =encoding utf-8
@@ -193,7 +195,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.011
+version 0.012
 
 =head1 SYNOPSIS
 
@@ -222,6 +224,7 @@ a L<Dist::Zilla> configuration approximate like:
     [InstallGuide]
     [ReadmeFromPod]
     [CopyReadmeFromBuild]
+    [CopyMakefilePLFromBuild]
 
     [Git::NextVersion]
     [PkgVersion]
@@ -254,7 +257,7 @@ instead of C<L<UploadToCPAN|Dist::Zilla::Plugin::UploadToCPAN>>. Defaults to 0.
 =item *
 
 C<bugtracker> specifies a URL for your bug tracker. This is passed to C<L<Bugtracker|Dist::Zilla::Plugin::Bugtracker>>,
-so the same interpolation rules apply. Defaults to C<http://github.com/doherty/%s/issues'>.
+so the same interpolation rules apply. Defaults to C<http://github.com/doherty/%s/issues>.
 
 =item *
 
@@ -322,7 +325,4 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
 
