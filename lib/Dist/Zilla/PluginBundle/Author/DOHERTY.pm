@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = 0.013;# VERSION
+our $VERSION = 0.014;# VERSION
 
 
 # Dependencies
@@ -21,7 +21,7 @@ use Dist::Zilla::Plugin::PodWeaver                      qw();
 use Dist::Zilla::Plugin::SurgicalPodWeaver       0.0015 qw(); # to avoid circular dependencies
 use Dist::Zilla::Plugin::InstallGuide                   qw();
 use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
-use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0016 qw(); # to run during AfterRelease
+use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0017 qw(); # to run during AfterRelease
 use Dist::Zilla::Plugin::Git::NextVersion               qw();
 use Dist::Zilla::Plugin::OurPkgVersion                  qw();
 use Dist::Zilla::Plugin::NextRelease                    qw();
@@ -34,7 +34,7 @@ use Dist::Zilla::Plugin::CheckExtraTests                qw();
 use Dist::Zilla::Plugin::GithubUpdate              0.03 qw(); # Support for p3rl.org
 use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
 use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
-use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0016 qw(); # to run during AfterRelease
+use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0017 qw(); # to run during AfterRelease
 
 use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
 use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
@@ -118,7 +118,7 @@ sub configure {
 
         # Gather & prune
         'GatherDir',
-        [ 'PruneFiles' => { filenames => 'Makefile.PL' } ], # Required by CopyMakefilePLFromBuild
+        [ 'PruneFiles' => { filenames => ['Makefile.PL'] } ], # Required by CopyMakefilePLFromBuild
         'PruneCruft',
         'ManifestSkip',
 
@@ -146,8 +146,11 @@ sub configure {
         'Manifest',
 
         # Before release
-        [ 'Git::Check' => { changelog => 'CHANGES', allow_dirty => 'README' } ],
         [ 'CheckChangesHasContent' => { changelog => 'CHANGES' } ],
+        [ 'Git::Check' => {
+            changelog => 'CHANGES',
+            allow_dirty => ['CHANGES', 'README', 'Makefile.PL'],
+        } ],
         'TestRelease',
         'CheckExtraTests',
         'ConfirmRelease',
@@ -158,10 +161,16 @@ sub configure {
         # After release
         'CopyReadmeFromBuild',
         'CopyMakefilePLFromBuild',
-        [ 'NextRelease' => { filename => 'CHANGES', format => '%-9v %{yyyy-MM-dd}d' } ],
-        # [ 'Git::Commit' => { allow_dirty => ['Makefile.PL', 'README', 'CHANGES'], commit_msg => 'Released %v%t' } ],
+        [ 'NextRelease' => {
+            filename => 'CHANGES',
+            format => '%-9v %{yyyy-MM-dd}d',
+        } ],
+        [ 'Git::Commit' => {
+            allow_dirty => ['Makefile.PL', 'README', 'CHANGES'],
+            commit_msg => 'Released %v%t',
+        } ],
         [ 'Git::Tag' => { tag_format => $self->tag_format } ],
-        # 'Git::Push',
+        'Git::Push',
         [ 'GithubUpdate' => { cpan => 1, p3rl => 1 } ],
         'InstallRelease',
     );
@@ -193,7 +202,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.013
+version 0.014
 
 =head1 SYNOPSIS
 

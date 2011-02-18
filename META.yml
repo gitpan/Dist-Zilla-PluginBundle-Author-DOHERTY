@@ -21,8 +21,8 @@ requires:
   Dist::Zilla::Plugin::Bugtracker: 1.102670
   Dist::Zilla::Plugin::CheckChangesHasContent: 0
   Dist::Zilla::Plugin::CheckExtraTests: 0
-  Dist::Zilla::Plugin::CopyMakefilePLFromBuild: 0.0016
-  Dist::Zilla::Plugin::CopyReadmeFromBuild: 0.0016
+  Dist::Zilla::Plugin::CopyMakefilePLFromBuild: 0.0017
+  Dist::Zilla::Plugin::CopyReadmeFromBuild: 0.0017
   Dist::Zilla::Plugin::Git::Check: 0
   Dist::Zilla::Plugin::Git::Commit: 0
   Dist::Zilla::Plugin::Git::NextVersion: 0
@@ -51,4 +51,4 @@ requires:
 resources:
   bugtracker: http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues
   repository: git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git
-version: 0.013
+version: 0.014
