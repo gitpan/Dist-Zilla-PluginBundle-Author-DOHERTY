@@ -1,7 +1,13 @@
 Revision history for Perl module Dist-Zilla-PluginBundle-Author-DOHERTY
 
-0.013     2011-02-18
+{{$NEXT}}
+<<<<<<< HEAD
     * Use OurPkgVersion instead of PkgVersion - much better
+=======
+    * Use PruneFiles instead of MANIFEST.SKIP to skip Makefile.PL
+    * Use OurPkgVersion - much nicer than PkgVersion
+    * Automatically commit and push dzil's chaanges on release
+>>>>>>> ed70e82... Don't commit and push dzil's changes on release
 
 0.012     2011-02-06
     * Require D::Z::PB::TestingMania 0.003 for a better dep tree & PodLinkTests

@@ -1,12 +1,8 @@
+package Dist::Zilla::PluginBundle::Author::DOHERTY;
+# ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-#use diagnostics;
-
-package Dist::Zilla::PluginBundle::Author::DOHERTY;
-BEGIN {
-  $Dist::Zilla::PluginBundle::Author::DOHERTY::VERSION = '0.012';
-}
-# ABSTRACT: configure Dist::Zilla like DOHERTY
+our $VERSION = 0.013;# VERSION
 
 
 # Dependencies
@@ -25,9 +21,9 @@ use Dist::Zilla::Plugin::PodWeaver                      qw();
 use Dist::Zilla::Plugin::SurgicalPodWeaver       0.0015 qw(); # to avoid circular dependencies
 use Dist::Zilla::Plugin::InstallGuide                   qw();
 use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
-use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0015 qw(); # to avoid circular dependencies
+use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0016 qw(); # to run during AfterRelease
 use Dist::Zilla::Plugin::Git::NextVersion               qw();
-use Dist::Zilla::Plugin::PkgVersion                     qw();
+use Dist::Zilla::Plugin::OurPkgVersion                  qw();
 use Dist::Zilla::Plugin::NextRelease                    qw();
 use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
 use Dist::Zilla::Plugin::Git::Commit                    qw();
@@ -38,7 +34,7 @@ use Dist::Zilla::Plugin::CheckExtraTests                qw();
 use Dist::Zilla::Plugin::GithubUpdate              0.03 qw(); # Support for p3rl.org
 use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
 use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
-use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0015 qw(); # to avoid circular dependencies
+use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0016 qw(); # to run during AfterRelease
 
 use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
 use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
@@ -118,10 +114,11 @@ sub configure {
     $self->add_plugins(
         # Version number
         [ 'Git::NextVersion' => { version_regexp => $self->version_regexp } ],
-        'PkgVersion',
+        'OurPkgVersion',
 
         # Gather & prune
         'GatherDir',
+        [ 'PruneFiles' => { filenames => 'Makefile.PL' } ], # Required by CopyMakefilePLFromBuild
         'PruneCruft',
         'ManifestSkip',
 
@@ -159,13 +156,14 @@ sub configure {
         ( $self->fake_release ? 'FakeRelease' : 'UploadToCPAN' ),
 
         # After release
-        [ 'GithubUpdate' => { cpan => 1, p3rl => 1 } ],
         'CopyReadmeFromBuild',
         'CopyMakefilePLFromBuild',
-        'Git::Commit',
-        [ 'Git::Tag' => { tag_format => $self->tag_format } ],
-        'InstallRelease',
         [ 'NextRelease' => { filename => 'CHANGES', format => '%-9v %{yyyy-MM-dd}d' } ],
+        # [ 'Git::Commit' => { allow_dirty => ['Makefile.PL', 'README', 'CHANGES'], commit_msg => 'Released %v%t' } ],
+        [ 'Git::Tag' => { tag_format => $self->tag_format } ],
+        # 'Git::Push',
+        [ 'GithubUpdate' => { cpan => 1, p3rl => 1 } ],
+        'InstallRelease',
     );
     $self->add_plugins([ 'Twitter' => { hash_tags => '#perl #cpan', url_shortener => 'IsGd' } ])
         if ($self->twitter and not $self->fake_release);
@@ -195,7 +193,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.012
+version 0.013
 
 =head1 SYNOPSIS
 
@@ -244,7 +242,7 @@ a L<Dist::Zilla> configuration approximate like:
 
 =head1 USAGE
 
-Just put C<[@DOHERTY]> in your F<dist.ini>. You can supply the following
+Just put C<[@Author::DOHERTY]> in your F<dist.ini>. You can supply the following
 options:
 
 =over 4
@@ -256,8 +254,9 @@ instead of C<L<UploadToCPAN|Dist::Zilla::Plugin::UploadToCPAN>>. Defaults to 0.
 
 =item *
 
-C<bugtracker> specifies a URL for your bug tracker. This is passed to C<L<Bugtracker|Dist::Zilla::Plugin::Bugtracker>>,
-so the same interpolation rules apply. Defaults to C<http://github.com/doherty/%s/issues>.
+C<bugtracker> specifies a URL for your bug tracker. This is passed to
+C<L<Bugtracker|Dist::Zilla::Plugin::Bugtracker>>, so the same interpolation
+rules apply. Defaults to C<http://github.com/doherty/%s/issues>.
 
 =item *
 
@@ -305,6 +304,11 @@ The development version lives at L<http://github.com/doherty/Dist-Zilla-PluginBu
 and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git>.
 Instead of sending patches, please fork this project using the standard
 git and github infrastructure.
+
+=head1 SOURCE
+
+The development version is on github at L<http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY>
+and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git>
 
 =head1 BUGS AND LIMITATIONS
 
