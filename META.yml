@@ -38,7 +38,7 @@ requires:
   Dist::Zilla::Plugin::Repository: 0.13
   Dist::Zilla::Plugin::SurgicalPodWeaver: 0.0015
   Dist::Zilla::Plugin::Twitter: 0.010
-  Dist::Zilla::PluginBundle::TestingMania: 0.003
+  Dist::Zilla::PluginBundle::TestingMania: 0.004
   Dist::Zilla::Role::PluginBundle::Easy: 0
   Moose: 0.99
   Moose::Autobox: 0
@@ -51,4 +51,4 @@ requires:
 resources:
   bugtracker: http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues
   repository: git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git
-version: 0.014
+version: 0.015

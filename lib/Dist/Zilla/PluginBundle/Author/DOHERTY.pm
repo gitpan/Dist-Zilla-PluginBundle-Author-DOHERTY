@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = 0.014;# VERSION
+our $VERSION = '0.015'; # VERSION
 
 
 # Dependencies
@@ -28,7 +28,7 @@ use Dist::Zilla::Plugin::NextRelease                    qw();
 use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
 use Dist::Zilla::Plugin::Git::Commit                    qw();
 use Dist::Zilla::Plugin::Git::Tag                       qw();
-use Dist::Zilla::PluginBundle::TestingMania       0.003 qw(); # better deps tree & PodLinkTests
+use Dist::Zilla::PluginBundle::TestingMania       0.004 qw(); # better deps tree & PodLinkTests; ChangesTests
 use Dist::Zilla::Plugin::InstallRelease           0.006 qw(); # to detect failed installs
 use Dist::Zilla::Plugin::CheckExtraTests                qw();
 use Dist::Zilla::Plugin::GithubUpdate              0.03 qw(); # Support for p3rl.org
@@ -108,6 +108,14 @@ has surgical => (
 );
 
 
+has changelog => (
+    is      => 'ro',
+    isa     => 'Str',
+    lazy    => 1,
+    default => sub { $_[0]->payload->{changelog} || 'CHANGES' },
+);
+
+
 sub configure {
     my $self = shift;
 
@@ -146,10 +154,10 @@ sub configure {
         'Manifest',
 
         # Before release
-        [ 'CheckChangesHasContent' => { changelog => 'CHANGES' } ],
+        [ 'CheckChangesHasContent' => { changelog => $self->changelog } ],
         [ 'Git::Check' => {
-            changelog => 'CHANGES',
-            allow_dirty => ['CHANGES', 'README', 'Makefile.PL'],
+            changelog => $self->changelog,
+            allow_dirty => [$self->changelog, 'README', 'Makefile.PL'],
         } ],
         'TestRelease',
         'CheckExtraTests',
@@ -162,11 +170,11 @@ sub configure {
         'CopyReadmeFromBuild',
         'CopyMakefilePLFromBuild',
         [ 'NextRelease' => {
-            filename => 'CHANGES',
+            filename => $self->changelog,
             format => '%-9v %{yyyy-MM-dd}d',
         } ],
         [ 'Git::Commit' => {
-            allow_dirty => ['Makefile.PL', 'README', 'CHANGES'],
+            allow_dirty => ['Makefile.PL', 'README', $self->changelog],
             commit_msg => 'Released %v%t',
         } ],
         [ 'Git::Tag' => { tag_format => $self->tag_format } ],
@@ -181,6 +189,7 @@ sub configure {
         'TestingMania' => {
             add  => $self->payload->{'add_tests'},
             skip => $self->payload->{'skip_tests'},
+            changelog => $self->changelog,
         },
     );
 }
@@ -202,7 +211,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.014
+version 0.015
 
 =head1 SYNOPSIS
 
@@ -227,7 +236,7 @@ a L<Dist::Zilla> configuration approximate like:
     :version = 1.102670 ; To set bugtracker
     web = http://github.com/doherty/%s/issues
     [PodWeaver]
-    config_plugin = @DOHERTY
+    config_plugin = @Author::DOHERTY
     [InstallGuide]
     [ReadmeFromPod]
     [CopyReadmeFromBuild]
@@ -294,6 +303,10 @@ C<no_twitter> says that releases of this module shouldn't be tweeted.
 =item *
 
 C<surgical> says to use L<Dist::Zilla::Plugin::SurgicalPodWeaver>.
+
+=item *
+
+C<changelog> is the filename of the changelog, and defaults to CHANGES.
 
 =back
 
