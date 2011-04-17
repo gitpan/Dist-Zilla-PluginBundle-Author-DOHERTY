@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.015'; # VERSION
+our $VERSION = '0.016'; # VERSION
 
 
 # Dependencies
@@ -12,32 +12,28 @@ use Moose::Autobox;
 use namespace::autoclean 0.09;
 
 use Dist::Zilla 4.102341; # dzil authordeps
-use Dist::Zilla::Plugin::Git::Check                     qw();
-use Dist::Zilla::Plugin::AutoPrereqs                    qw();
-use Dist::Zilla::Plugin::MinimumPerl                    qw();
-use Dist::Zilla::Plugin::Repository                0.13 qw(); # v2 Meta spec
-use Dist::Zilla::Plugin::Bugtracker            1.102670 qw(); # to set bugtracker in dist.ini
-use Dist::Zilla::Plugin::PodWeaver                      qw();
-use Dist::Zilla::Plugin::SurgicalPodWeaver       0.0015 qw(); # to avoid circular dependencies
-use Dist::Zilla::Plugin::InstallGuide                   qw();
-use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
-use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0017 qw(); # to run during AfterRelease
-use Dist::Zilla::Plugin::Git::NextVersion               qw();
-use Dist::Zilla::Plugin::OurPkgVersion                  qw();
-use Dist::Zilla::Plugin::NextRelease                    qw();
 use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
-use Dist::Zilla::Plugin::Git::Commit                    qw();
-use Dist::Zilla::Plugin::Git::Tag                       qw();
-use Dist::Zilla::PluginBundle::TestingMania       0.004 qw(); # better deps tree & PodLinkTests; ChangesTests
-use Dist::Zilla::Plugin::InstallRelease           0.006 qw(); # to detect failed installs
 use Dist::Zilla::Plugin::CheckExtraTests                qw();
-use Dist::Zilla::Plugin::GithubUpdate              0.03 qw(); # Support for p3rl.org
-use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
-use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
 use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0017 qw(); # to run during AfterRelease
-
-use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
+use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0017 qw(); # to run during AfterRelease
+use Dist::Zilla::Plugin::Git::Check                     qw();
+use Dist::Zilla::Plugin::Git::Commit                    qw();
+use Dist::Zilla::Plugin::GitHub::Update            0.06 qw(); # Support for p3rl.org; new name
+use Dist::Zilla::Plugin::GitHub::Meta              0.06 qw(); # new name
+use Dist::Zilla::Plugin::Git::NextVersion               qw();
+use Dist::Zilla::Plugin::Git::Tag                       qw();
+use Dist::Zilla::Plugin::InstallGuide                   qw();
+use Dist::Zilla::Plugin::InstallRelease           0.006 qw(); # to detect failed installs
+use Dist::Zilla::Plugin::MinimumPerl                    qw();
+use Dist::Zilla::Plugin::OurPkgVersion                  qw();
+use Dist::Zilla::Plugin::PodWeaver                      qw();
+use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
+use Dist::Zilla::Plugin::SurgicalPodWeaver       0.0015 qw(); # to avoid circular dependencies
+use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
+use Dist::Zilla::PluginBundle::TestingMania             qw(); # better deps tree & PodLinkTests; ChangesTests
 use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
+use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
+use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
 
 with 'Dist::Zilla::Role::PluginBundle::Easy';
 
@@ -50,15 +46,7 @@ has fake_release => (
 );
 
 
-has bugtracker => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub { $_[0]->payload->{bugtracker} || 'http://github.com/doherty/%s/issues' },
-);
-
-
-has add_tests => (
+has enable_tests => (
     is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
@@ -66,7 +54,7 @@ has add_tests => (
 );
 
 
-has skip_tests => (
+has disable_tests => (
     is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
@@ -78,7 +66,7 @@ has tag_format => (
     is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
-    default => sub { $_[0]->payload->{tag_format} || 'release-%v' },
+    default => sub { $_[0]->payload->{tag_format} || 'v%v' },
 );
 
 
@@ -86,7 +74,7 @@ has version_regexp => (
     is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
-    default => sub { $_[0]->payload->{version_regexp} || '^release-(.+)$' },
+    default => sub { $_[0]->payload->{version_regexp} || '^(?:v|release-)(.+)$' },
 );
 
 
@@ -112,7 +100,7 @@ has changelog => (
     is      => 'ro',
     isa     => 'Str',
     lazy    => 1,
-    default => sub { $_[0]->payload->{changelog} || 'CHANGES' },
+    default => sub { $_[0]->payload->{changelog} || 'Changes' },
 );
 
 
@@ -135,9 +123,9 @@ sub configure {
         'License',
         'MinimumPerl',
         'AutoPrereqs',
+        'GitHub::Meta',
+        'MetaJSON',
         'MetaYAML',
-        'Repository',
-        [ 'Bugtracker' => { web => $self->bugtracker } ],
 
         # File munging
         ( $self->surgical
@@ -179,18 +167,21 @@ sub configure {
         } ],
         [ 'Git::Tag' => { tag_format => $self->tag_format } ],
         'Git::Push',
-        [ 'GithubUpdate' => { cpan => 1, p3rl => 1 } ],
-        'InstallRelease',
+        [ 'GitHub::Update' => { cpan => 0, p3rl => 1 } ],
     );
     $self->add_plugins([ 'Twitter' => { hash_tags => '#perl #cpan', url_shortener => 'IsGd' } ])
         if ($self->twitter and not $self->fake_release);
 
     $self->add_bundle(
         'TestingMania' => {
-            add  => $self->payload->{'add_tests'},
-            skip => $self->payload->{'skip_tests'},
+            enable  => $self->payload->{'enable_tests'},
+            disable => $self->payload->{'disable_tests'},
             changelog => $self->changelog,
         },
+    );
+
+    $self->add_plugins(
+        'InstallRelease',
     );
 }
 
@@ -211,7 +202,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.015
+version 0.016
 
 =head1 SYNOPSIS
 
@@ -251,7 +242,7 @@ a L<Dist::Zilla> configuration approximate like:
     changelog = CHANGES
 
     [Twitter]       ; config in ~/.netrc
-    [GithubUpdate]  ; config in ~/.gitconfig
+    [Github::Update]  ; config in ~/.gitconfig
     [Git::Commit]
     [Git::Tag]
 
@@ -269,12 +260,6 @@ options:
 
 C<fake_release> specifies whether to use C<L<FakeRelease|Dist::Zilla::Plugin::FakeRelease>>
 instead of C<L<UploadToCPAN|Dist::Zilla::Plugin::UploadToCPAN>>. Defaults to 0.
-
-=item *
-
-C<bugtracker> specifies a URL for your bug tracker. This is passed to
-C<L<Bugtracker|Dist::Zilla::Plugin::Bugtracker>>, so the same interpolation
-rules apply. Defaults to C<http://github.com/doherty/%s/issues>.
 
 =item *
 
@@ -306,7 +291,7 @@ C<surgical> says to use L<Dist::Zilla::Plugin::SurgicalPodWeaver>.
 
 =item *
 
-C<changelog> is the filename of the changelog, and defaults to CHANGES.
+C<changelog> is the filename of the changelog, and defaults to F<Changes>.
 
 =back
 
@@ -317,6 +302,8 @@ C<L<Dist::Zilla>>
 =for Pod::Coverage configure
 
 =head1 AVAILABILITY
+
+The project homepage is L<http://p3rl.org/Dist::Zilla::PluginBundle::Author::DOHERTY>.
 
 The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
@@ -337,7 +324,7 @@ and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author
 No bugs have been reported.
 
 Please report any bugs or feature requests through the web interface at
-L<http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues>.
+L<https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues>.
 
 =head1 AUTHOR
 
