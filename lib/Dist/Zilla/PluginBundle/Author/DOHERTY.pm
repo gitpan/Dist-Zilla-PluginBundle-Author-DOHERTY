@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.016'; # VERSION
+our $VERSION = '0.017'; # VERSION
 
 
 # Dependencies
@@ -30,10 +30,11 @@ use Dist::Zilla::Plugin::PodWeaver                      qw();
 use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
 use Dist::Zilla::Plugin::SurgicalPodWeaver       0.0015 qw(); # to avoid circular dependencies
 use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
-use Dist::Zilla::PluginBundle::TestingMania             qw(); # better deps tree & PodLinkTests; ChangesTests
+use Dist::Zilla::PluginBundle::TestingMania       0.009 qw(); # better deps tree & PodLinkTests; ChangesTests
 use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
 use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
 use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
+use WWW::Shorten::Googl                                 qw();
 
 with 'Dist::Zilla::Role::PluginBundle::Easy';
 
@@ -169,7 +170,7 @@ sub configure {
         'Git::Push',
         [ 'GitHub::Update' => { cpan => 0, p3rl => 1 } ],
     );
-    $self->add_plugins([ 'Twitter' => { hash_tags => '#perl #cpan', url_shortener => 'IsGd' } ])
+    $self->add_plugins([ 'Twitter' => { hash_tags => '#perl #cpan', url_shortener => 'Googl' } ])
         if ($self->twitter and not $self->fake_release);
 
     $self->add_bundle(
@@ -202,7 +203,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.016
+version 0.017
 
 =head1 SYNOPSIS
 
@@ -212,7 +213,7 @@ version 0.016
 =head1 DESCRIPTION
 
 C<Dist::Zilla::PluginBundle::Author::DOHERTY> provides shorthand for
-a L<Dist::Zilla> configuration approximate like:
+a L<Dist::Zilla> configuration approximately like:
 
     [Git::Check]
     [@Filter]
@@ -222,10 +223,7 @@ a L<Dist::Zilla> configuration approximate like:
 
     [AutoPrereqs]
     [MinimumPerl]
-    [Repository]
-    [Bugtracker]
-    :version = 1.102670 ; To set bugtracker
-    web = http://github.com/doherty/%s/issues
+    [Github::Meta]
     [PodWeaver]
     config_plugin = @Author::DOHERTY
     [InstallGuide]
@@ -236,17 +234,18 @@ a L<Dist::Zilla> configuration approximate like:
     [Git::NextVersion]
     [PkgVersion]
     [NextRelease]
-    filename = CHANGES
+    filename = Changes
     format   = %-9v %{yyyy-MM-dd}d
     [CheckChangesHasContent]
-    changelog = CHANGES
+    changelog = Changes
 
-    [Twitter]       ; config in ~/.netrc
+    [Twitter]         ; config in ~/.netrc
     [Github::Update]  ; config in ~/.gitconfig
     [Git::Commit]
     [Git::Tag]
 
     [@TestingMania]
+    changelog = Changes
     [LocalInstall]
 
 =head1 USAGE
