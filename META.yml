@@ -51,4 +51,4 @@ resources:
   bugtracker: https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues
   homepage: http://p3rl.org/Dist::Zilla::PluginBundle::Author::DOHERTY
   repository: git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git
-version: 0.018
+version: 0.019
