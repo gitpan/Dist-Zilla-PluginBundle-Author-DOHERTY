@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.017'; # VERSION
+our $VERSION = '0.018'; # VERSION
 
 
 # Dependencies
@@ -14,6 +14,7 @@ use namespace::autoclean 0.09;
 use Dist::Zilla 4.102341; # dzil authordeps
 use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
 use Dist::Zilla::Plugin::CheckExtraTests                qw();
+use Dist::Zilla::Plugin::Clean                          qw();
 use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0017 qw(); # to run during AfterRelease
 use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0017 qw(); # to run during AfterRelease
 use Dist::Zilla::Plugin::Git::Check                     qw();
@@ -24,7 +25,7 @@ use Dist::Zilla::Plugin::Git::NextVersion               qw();
 use Dist::Zilla::Plugin::Git::Tag                       qw();
 use Dist::Zilla::Plugin::InstallGuide                   qw();
 use Dist::Zilla::Plugin::InstallRelease           0.006 qw(); # to detect failed installs
-use Dist::Zilla::Plugin::MinimumPerl                    qw();
+use Dist::Zilla::Plugin::MinimumPerl              1.003 qw(); # to ignore non-perl files
 use Dist::Zilla::Plugin::OurPkgVersion                  qw();
 use Dist::Zilla::Plugin::PodWeaver                      qw();
 use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
@@ -39,78 +40,35 @@ use WWW::Shorten::Googl                                 qw();
 with 'Dist::Zilla::Role::PluginBundle::Easy';
 
 
-has fake_release => (
-    is      => 'ro',
-    isa     => 'Bool',
-    lazy    => 1,
-    default => sub { $_[0]->payload->{fake_release} || 0 },
-);
-
-
-has enable_tests => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => '',
-);
-
-
-has disable_tests => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => '',
-);
-
-
-has tag_format => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub { $_[0]->payload->{tag_format} || 'v%v' },
-);
-
-
-has version_regexp => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub { $_[0]->payload->{version_regexp} || '^(?:v|release-)(.+)$' },
-);
-
-
-has twitter => (
-    is      => 'ro',
-    isa     => 'Bool',
-    lazy    => 1,
-    default => sub {
-        (defined $_[0]->payload->{no_twitter} and $_[0]->payload->{no_twitter} == 1) ? 0 : 1;
-    },
-);
-
-
-has surgical => (
-    is      => 'ro',
-    isa     => 'Bool',
-    lazy    => 1,
-    default => sub { $_[0]->payload->{surgical} || 0 },
-);
-
-
-has changelog => (
-    is      => 'ro',
-    isa     => 'Str',
-    lazy    => 1,
-    default => sub { $_[0]->payload->{changelog} || 'Changes' },
-);
-
-
 sub configure {
     my $self = shift;
 
+    my $conf = do {
+        my $defaults = {
+            changelog       => 'Changes',
+            twitter         => 1,
+            version_regexp  => '^(?:v|release-)(.+)$',
+            tag_format      => 'v%v',
+            fake_release    => 0,
+            surgical        => 0,
+        };
+        my $config = $self->config_slice(
+            'version_regexp',
+            'tag_format',
+            'changelog',
+            'fake_release',
+            'twitter',
+            'surgical',
+            'critic_config',
+            { enable_tests  => 'enable'  },
+            { disable_tests => 'disable' },
+        );
+        $defaults->merge($config);
+    };
+
     $self->add_plugins(
         # Version number
-        [ 'Git::NextVersion' => { version_regexp => $self->version_regexp } ],
+        [ 'Git::NextVersion' => { version_regexp => $conf->{version_regexp} } ],
         'OurPkgVersion',
 
         # Gather & prune
@@ -129,7 +87,7 @@ sub configure {
         'MetaYAML',
 
         # File munging
-        ( $self->surgical
+        ( $conf->{surgical}
             ? [ 'SurgicalPodWeaver' => { config_plugin => '@Author::DOHERTY' } ]
             : [ 'PodWeaver'         => { config_plugin => '@Author::DOHERTY' } ]
         ),
@@ -143,46 +101,48 @@ sub configure {
         'Manifest',
 
         # Before release
-        [ 'CheckChangesHasContent' => { changelog => $self->changelog } ],
+        [ 'CheckChangesHasContent' => { changelog => $conf->{changelog} } ],
         [ 'Git::Check' => {
-            changelog => $self->changelog,
-            allow_dirty => [$self->changelog, 'README', 'Makefile.PL'],
+            changelog => $conf->{changelog},
+            allow_dirty => [$conf->{changelog}, 'README', 'Makefile.PL'],
         } ],
         'TestRelease',
         'CheckExtraTests',
         'ConfirmRelease',
 
         # Release
-        ( $self->fake_release ? 'FakeRelease' : 'UploadToCPAN' ),
+        ( $conf->{fake_release} ? 'FakeRelease' : 'UploadToCPAN' ),
 
         # After release
         'CopyReadmeFromBuild',
         'CopyMakefilePLFromBuild',
         [ 'NextRelease' => {
-            filename => $self->changelog,
+            filename => $conf->{changelog},
             format => '%-9v %{yyyy-MM-dd}d',
         } ],
         [ 'Git::Commit' => {
-            allow_dirty => ['Makefile.PL', 'README', $self->changelog],
+            allow_dirty => ['Makefile.PL', 'README', $conf->{changelog}],
             commit_msg => 'Released %v%t',
         } ],
-        [ 'Git::Tag' => { tag_format => $self->tag_format } ],
+        [ 'Git::Tag' => { tag_format => $conf->{tag_format} } ],
         'Git::Push',
         [ 'GitHub::Update' => { cpan => 0, p3rl => 1 } ],
     );
     $self->add_plugins([ 'Twitter' => { hash_tags => '#perl #cpan', url_shortener => 'Googl' } ])
-        if ($self->twitter and not $self->fake_release);
+        if ($conf->{twitter} and not $conf->{fake_release});
 
     $self->add_bundle(
         'TestingMania' => {
-            enable  => $self->payload->{'enable_tests'},
-            disable => $self->payload->{'disable_tests'},
-            changelog => $self->changelog,
-        },
-    );
+            enable      => $conf->{enable},
+            disable     => $conf->{disable},
+            changelog   => $conf->{changelog},
+            critic_config => $conf->{critic_config},
+        }
+     );
 
     $self->add_plugins(
         'InstallRelease',
+        'Clean',
     );
 }
 
@@ -203,7 +163,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.017
+version 0.018
 
 =head1 SYNOPSIS
 
@@ -213,40 +173,7 @@ version 0.017
 =head1 DESCRIPTION
 
 C<Dist::Zilla::PluginBundle::Author::DOHERTY> provides shorthand for
-a L<Dist::Zilla> configuration approximately like:
-
-    [Git::Check]
-    [@Filter]
-    -bundle = @Basic    ; Equivalent to using [@Basic]
-    -remove = Readme    ; For use with [CopyReadmeFromBuild]
-    -remove = ExtraTests
-
-    [AutoPrereqs]
-    [MinimumPerl]
-    [Github::Meta]
-    [PodWeaver]
-    config_plugin = @Author::DOHERTY
-    [InstallGuide]
-    [ReadmeFromPod]
-    [CopyReadmeFromBuild]
-    [CopyMakefilePLFromBuild]
-
-    [Git::NextVersion]
-    [PkgVersion]
-    [NextRelease]
-    filename = Changes
-    format   = %-9v %{yyyy-MM-dd}d
-    [CheckChangesHasContent]
-    changelog = Changes
-
-    [Twitter]         ; config in ~/.netrc
-    [Github::Update]  ; config in ~/.gitconfig
-    [Git::Commit]
-    [Git::Tag]
-
-    [@TestingMania]
-    changelog = Changes
-    [LocalInstall]
+a L<Dist::Zilla> configuration that does what Mike wants.
 
 =head1 USAGE
 
@@ -258,39 +185,56 @@ options:
 =item *
 
 C<fake_release> specifies whether to use C<L<FakeRelease|Dist::Zilla::Plugin::FakeRelease>>
-instead of C<L<UploadToCPAN|Dist::Zilla::Plugin::UploadToCPAN>>. Defaults to 0.
+instead of C<< L<UploadToCPAN|Dist::Zilla::Plugin::UploadToCPAN> >>.
+
+Default is false.
 
 =item *
 
 C<add_tests> is a comma-separated list of testing plugins to add
-to C<L<TestingMania|Dist::Zilla::PluginBundle::TestingMania>>.
+to C<< L<TestingMania|Dist::Zilla::PluginBundle::TestingMania> >>.
+
+Default is none.
 
 =item *
 
 C<skip_tests> is a comma-separated list of testing plugins to skip in
-C<L<TestingMania|Dist::Zilla::PluginBundle::TestingMania>>.
+C<< L<TestingMania|Dist::Zilla::PluginBundle::TestingMania> >>.
+
+Default is none.
 
 =item *
 
 C<tag_format> specifies how a git release tag should be named. This is
-passed to C<L<Git::Tag|Dist::Zilla::Plugin::Git::Tag>>.
+passed to C<< L<Git::Tag|Dist::Zilla::Plugin::Git::Tag> >>.
+
+Default is C< 'v%v' >.
 
 =item *
 
 C<version_regex> specifies a regexp to find the version number part of
-a git release tag. This is passed to C<L<Git::NextVersion|Dist::Zilla::Plugin::Git::NextVersion>>.
+a git release tag. This is passed to
+C<< L<Git::NextVersion|Dist::Zilla::Plugin::Git::NextVersion> >>.
+
+Default is C<< '^(?:v|release-)(.+)$' >>.
 
 =item *
 
-C<no_twitter> says that releases of this module shouldn't be tweeted.
+C<twitter> says whether releases of this module should be tweeted.
+
+Default is true.
 
 =item *
 
 C<surgical> says to use L<Dist::Zilla::Plugin::SurgicalPodWeaver>.
 
+Default is false.
+
 =item *
 
-C<changelog> is the filename of the changelog, and defaults to F<Changes>.
+C<changelog> is the filename of the changelog.
+
+Default is F<Changes>.
 
 =back
 

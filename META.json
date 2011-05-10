@@ -4,7 +4,7 @@
       "Mike Doherty <doherty@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.200004, CPAN::Meta::Converter version 2.110930",
+   "generated_by" : "Dist::Zilla version 4.200006, CPAN::Meta::Converter version 2.110930",
    "license" : [
       "perl_5"
    ],
@@ -16,7 +16,7 @@
    "prereqs" : {
       "configure" : {
          "requires" : {
-            "ExtUtils::MakeMaker" : "6.31"
+            "ExtUtils::MakeMaker" : "6.30"
          }
       },
       "runtime" : {
@@ -24,6 +24,7 @@
             "Dist::Zilla" : "4.102341",
             "Dist::Zilla::Plugin::CheckChangesHasContent" : 0,
             "Dist::Zilla::Plugin::CheckExtraTests" : 0,
+            "Dist::Zilla::Plugin::Clean" : 0,
             "Dist::Zilla::Plugin::CopyMakefilePLFromBuild" : "0.0017",
             "Dist::Zilla::Plugin::CopyReadmeFromBuild" : "0.0017",
             "Dist::Zilla::Plugin::Git::Check" : 0,
@@ -34,7 +35,7 @@
             "Dist::Zilla::Plugin::GitHub::Update" : "0.06",
             "Dist::Zilla::Plugin::InstallGuide" : 0,
             "Dist::Zilla::Plugin::InstallRelease" : "0.006",
-            "Dist::Zilla::Plugin::MinimumPerl" : 0,
+            "Dist::Zilla::Plugin::MinimumPerl" : "1.003",
             "Dist::Zilla::Plugin::OurPkgVersion" : 0,
             "Dist::Zilla::Plugin::PodWeaver" : 0,
             "Dist::Zilla::Plugin::ReadmeFromPod" : 0,
@@ -73,6 +74,6 @@
          "web" : "https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY"
       }
    },
-   "version" : "0.017"
+   "version" : "0.018"
 }
 
