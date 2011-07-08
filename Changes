@@ -1,5 +1,8 @@
 Revision history for Perl module Dist-Zilla-PluginBundle-Author-DOHERTY
 
+0.020     2011-07-08
+    * Also ship Build.PL
+
 0.019     2011-05-09
     * Bump MinimumPerl version to scan only perl files
     * Add Clean plugin to run clean automatically after release

@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.019'; # VERSION
+our $VERSION = '0.020'; # VERSION
 
 
 # Dependencies
@@ -15,8 +15,7 @@ use Dist::Zilla 4.102341; # dzil authordeps
 use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
 use Dist::Zilla::Plugin::CheckExtraTests                qw();
 use Dist::Zilla::Plugin::Clean                          qw();
-use Dist::Zilla::Plugin::CopyMakefilePLFromBuild 0.0017 qw(); # to run during AfterRelease
-use Dist::Zilla::Plugin::CopyReadmeFromBuild     0.0017 qw(); # to run during AfterRelease
+use Dist::Zilla::Plugin::CopyFilesFromBuild             qw(); # to copy specified files
 use Dist::Zilla::Plugin::Git::Check                     qw();
 use Dist::Zilla::Plugin::Git::Commit                    qw();
 use Dist::Zilla::Plugin::GitHub::Update            0.06 qw(); # Support for p3rl.org; new name
@@ -65,6 +64,7 @@ sub configure {
         );
         $defaults->merge($config);
     };
+    my @dzil_files_for_scm = qw(Makefile.PL Build.PL README);
 
     $self->add_plugins(
         # Version number
@@ -73,7 +73,7 @@ sub configure {
 
         # Gather & prune
         'GatherDir',
-        [ 'PruneFiles' => { filenames => ['Makefile.PL'] } ], # Required by CopyMakefilePLFromBuild
+        [ 'PruneFiles' => { filenames => \@dzil_files_for_scm } ], # Required by CopyFilesFromBuild
         'PruneCruft',
         'ManifestSkip',
 
@@ -96,6 +96,7 @@ sub configure {
         'ExecDir',
         'ShareDir',
         'MakeMaker',
+        'ModuleBuild',
 
         # Manifest stuff must come after generated files
         'Manifest',
@@ -104,7 +105,7 @@ sub configure {
         [ 'CheckChangesHasContent' => { changelog => $conf->{changelog} } ],
         [ 'Git::Check' => {
             changelog => $conf->{changelog},
-            allow_dirty => [$conf->{changelog}, 'README', 'Makefile.PL'],
+            allow_dirty => [$conf->{changelog}, @dzil_files_for_scm],
         } ],
         'TestRelease',
         'CheckExtraTests',
@@ -114,14 +115,13 @@ sub configure {
         ( $conf->{fake_release} ? 'FakeRelease' : 'UploadToCPAN' ),
 
         # After release
-        'CopyReadmeFromBuild',
-        'CopyMakefilePLFromBuild',
+        [ 'CopyFilesFromBuild' => { copy => \@dzil_files_for_scm } ],
         [ 'NextRelease' => {
             filename => $conf->{changelog},
             format => '%-9v %{yyyy-MM-dd}d',
         } ],
         [ 'Git::Commit' => {
-            allow_dirty => ['Makefile.PL', 'README', $conf->{changelog}],
+            allow_dirty => [$conf->{changelog}, @dzil_files_for_scm],
             commit_msg => 'Released %v%t',
         } ],
         [ 'Git::Tag' => { tag_format => $conf->{tag_format} } ],
@@ -148,7 +148,7 @@ sub configure {
 
 
 __PACKAGE__->meta->make_immutable;
-no Moose;
+
 1;
 
 
@@ -163,7 +163,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.019
+version 0.020
 
 =head1 SYNOPSIS
 

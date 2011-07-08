@@ -2,30 +2,31 @@
 use strict;
 use warnings;
 
-use 5.006;
-
-use ExtUtils::MakeMaker 6.30;
+use Module::Build 0.3601;
 
 
-
-my %WriteMakefileArgs = (
-  'ABSTRACT' => 'configure Dist::Zilla like DOHERTY',
-  'AUTHOR' => 'Mike Doherty <doherty@cpan.org>',
-  'BUILD_REQUIRES' => {
+my %module_build_args = (
+  'build_requires' => {
     'File::Find' => '0',
     'File::Temp' => '0',
     'Module::Build' => '0.3601',
     'Test::More' => '0'
   },
-  'CONFIGURE_REQUIRES' => {
+  'configure_requires' => {
     'ExtUtils::MakeMaker' => '6.30',
     'Module::Build' => '0.3601'
   },
-  'DISTNAME' => 'Dist-Zilla-PluginBundle-Author-DOHERTY',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'Dist::Zilla::PluginBundle::Author::DOHERTY',
-  'PREREQ_PM' => {
+  'dist_abstract' => 'configure Dist::Zilla like DOHERTY',
+  'dist_author' => [
+    'Mike Doherty <doherty@cpan.org>'
+  ],
+  'dist_name' => 'Dist-Zilla-PluginBundle-Author-DOHERTY',
+  'dist_version' => '0.020',
+  'license' => 'perl',
+  'module_name' => 'Dist::Zilla::PluginBundle::Author::DOHERTY',
+  'recommends' => {},
+  'recursive_test_files' => 1,
+  'requires' => {
     'Dist::Zilla' => '4.102341',
     'Dist::Zilla::Plugin::CheckChangesHasContent' => '0',
     'Dist::Zilla::Plugin::CheckExtraTests' => '0',
@@ -54,32 +55,13 @@ my %WriteMakefileArgs = (
     'WWW::Shorten::Googl' => '0',
     'WWW::Shorten::IsGd' => '0',
     'autodie' => '2.00',
-    'namespace::autoclean' => '0.09'
+    'namespace::autoclean' => '0.09',
+    'perl' => '5.006'
   },
-  'VERSION' => '0.020',
-  'test' => {
-    'TESTS' => 't/*.t'
-  }
+  'script_files' => []
 );
 
 
-unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
-  my $br = delete $WriteMakefileArgs{BUILD_REQUIRES};
-  my $pp = $WriteMakefileArgs{PREREQ_PM};
-  for my $mod ( keys %$br ) {
-    if ( exists $pp->{$mod} ) {
-      $pp->{$mod} = $br->{$mod} if $br->{$mod} > $pp->{$mod};
-    }
-    else {
-      $pp->{$mod} = $br->{$mod};
-    }
-  }
-}
+my $build = Module::Build->new(%module_build_args);
 
-delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
-  unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
-
-WriteMakefile(%WriteMakefileArgs);
-
-
-
+$build->create_build_script;
