@@ -11,7 +11,7 @@ configure_requires:
   ExtUtils::MakeMaker: 6.30
   Module::Build: 0.3601
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.200008, CPAN::Meta::Converter version 2.110440'
+generated_by: 'Dist::Zilla version 4.200015, CPAN::Meta::Converter version 2.112150'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -27,8 +27,7 @@ requires:
   Dist::Zilla::Plugin::Git::Commit: 0
   Dist::Zilla::Plugin::Git::NextVersion: 0
   Dist::Zilla::Plugin::Git::Tag: 0
-  Dist::Zilla::Plugin::GitHub::Meta: 0.06
-  Dist::Zilla::Plugin::GitHub::Update: 0.06
+  Dist::Zilla::Plugin::GitHub: 0.13
   Dist::Zilla::Plugin::InstallGuide: 0
   Dist::Zilla::Plugin::InstallRelease: 0.006
   Dist::Zilla::Plugin::MinimumPerl: 1.003
@@ -52,4 +51,4 @@ resources:
   bugtracker: https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues
   homepage: http://p3rl.org/Dist::Zilla::PluginBundle::Author::DOHERTY
   repository: git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git
-version: 0.020
+version: 0.021

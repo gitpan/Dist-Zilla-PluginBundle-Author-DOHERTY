@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.020'; # VERSION
+our $VERSION = '0.021'; # VERSION
 
 
 # Dependencies
@@ -18,8 +18,7 @@ use Dist::Zilla::Plugin::Clean                          qw();
 use Dist::Zilla::Plugin::CopyFilesFromBuild             qw(); # to copy specified files
 use Dist::Zilla::Plugin::Git::Check                     qw();
 use Dist::Zilla::Plugin::Git::Commit                    qw();
-use Dist::Zilla::Plugin::GitHub::Update            0.06 qw(); # Support for p3rl.org; new name
-use Dist::Zilla::Plugin::GitHub::Meta              0.06 qw(); # new name
+use Dist::Zilla::Plugin::GitHub                    0.13 qw(); # Support for pointing to parent forks
 use Dist::Zilla::Plugin::Git::NextVersion               qw();
 use Dist::Zilla::Plugin::Git::Tag                       qw();
 use Dist::Zilla::Plugin::InstallGuide                   qw();
@@ -128,8 +127,11 @@ sub configure {
         'Git::Push',
         [ 'GitHub::Update' => { cpan => 0, p3rl => 1 } ],
     );
-    $self->add_plugins([ 'Twitter' => { hash_tags => '#perl #cpan', url_shortener => 'Googl' } ])
-        if ($conf->{twitter} and not $conf->{fake_release});
+    $self->add_plugins([ 'Twitter' => {
+            hash_tags => '#perl #cpan',
+            url_shortener => 'Googl',
+            tweet_url => 'https://metacpan.org/release/{{$DIST}}',
+        } ]) if ($conf->{twitter} and not $conf->{fake_release});
 
     $self->add_bundle(
         'TestingMania' => {
@@ -163,7 +165,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.020
+version 0.021
 
 =head1 SYNOPSIS
 
@@ -191,14 +193,14 @@ Default is false.
 
 =item *
 
-C<add_tests> is a comma-separated list of testing plugins to add
+C<enable_tests> is a comma-separated list of testing plugins to add
 to C<< L<TestingMania|Dist::Zilla::PluginBundle::TestingMania> >>.
 
 Default is none.
 
 =item *
 
-C<skip_tests> is a comma-separated list of testing plugins to skip in
+C<disable_tests> is a comma-separated list of testing plugins to skip in
 C<< L<TestingMania|Dist::Zilla::PluginBundle::TestingMania> >>.
 
 Default is none.
