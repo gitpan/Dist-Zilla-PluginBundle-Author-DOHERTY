@@ -1,5 +1,11 @@
 Revision history for Perl module Dist-Zilla-PluginBundle-Author-DOHERTY
 
+v0.22     2011-08-27
+    * Also make GH URL point at metacpan
+    * Make signed tags
+    * Include -TRIAL on trial releases
+    * Allow specifying the git remote to push to after release
+
 0.021     2011-08-24
     * Fix documentation for enabling/disabling TestingMania tests
     * Require newer Dist::Zilla::Plugin::GitHub, which points metadata to parent forks on GH
