@@ -51,6 +51,6 @@ requires:
   warnings: 0
 resources:
   bugtracker: https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues
-  homepage: http://p3rl.org/Dist::Zilla::PluginBundle::Author::DOHERTY
+  homepage: http://metacpan.org/release/Dist-Zilla-PluginBundle-Author-DOHERTY/
   repository: git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git
-version: v0.22
+version: v0.23

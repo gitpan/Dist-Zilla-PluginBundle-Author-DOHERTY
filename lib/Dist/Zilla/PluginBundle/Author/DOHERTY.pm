@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = 'v0.22'; # VERSION
+our $VERSION = 'v0.23'; # VERSION
 
 
 # Dependencies
@@ -171,7 +171,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version v0.22
+version v0.23
 
 =head1 SYNOPSIS
 
@@ -260,7 +260,7 @@ C<L<Dist::Zilla>>
 
 =head1 AVAILABILITY
 
-The project homepage is L<http://p3rl.org/Dist::Zilla::PluginBundle::Author::DOHERTY>.
+The project homepage is L<http://metacpan.org/release/Dist-Zilla-PluginBundle-Author-DOHERTY/>.
 
 The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
