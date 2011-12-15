@@ -4,7 +4,7 @@
       "Mike Doherty <doherty@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300000, CPAN::Meta::Converter version 2.112150",
+   "generated_by" : "Dist::Zilla version 4.300003, CPAN::Meta::Converter version 2.112621",
    "license" : [
       "perl_5"
    ],
@@ -13,6 +13,11 @@
       "version" : "2"
    },
    "name" : "Dist-Zilla-PluginBundle-Author-DOHERTY",
+   "no_index" : {
+      "directory" : [
+         "corpus"
+      ]
+   },
    "prereqs" : {
       "build" : {
          "requires" : {
@@ -45,14 +50,13 @@
             "Dist::Zilla::Plugin::ReadmeFromPod" : 0,
             "Dist::Zilla::Plugin::SurgicalPodWeaver" : "0.0015",
             "Dist::Zilla::Plugin::Twitter" : "0.010",
-            "Dist::Zilla::PluginBundle::TestingMania" : "0.009",
+            "Dist::Zilla::PluginBundle::TestingMania" : 0,
             "Dist::Zilla::Role::PluginBundle::Easy" : 0,
             "Moose" : "0.99",
             "Moose::Autobox" : 0,
             "Pod::Weaver::PluginBundle::Author::DOHERTY" : "0.004",
             "Pod::Weaver::Section::BugsAndLimitations" : "1.102670",
             "WWW::Shorten::Googl" : 0,
-            "WWW::Shorten::IsGd" : 0,
             "autodie" : "2.00",
             "namespace::autoclean" : "0.09",
             "perl" : "5.006",
@@ -80,6 +84,6 @@
          "web" : "https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY"
       }
    },
-   "version" : "v0.23"
+   "version" : "0.24"
 }
 

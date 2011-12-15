@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = 'v0.23'; # VERSION
+our $VERSION = '0.24'; # VERSION
 
 
 # Dependencies
@@ -10,31 +10,7 @@ use autodie 2.00;
 use Moose 0.99;
 use Moose::Autobox;
 use namespace::autoclean 0.09;
-
 use Dist::Zilla 4.102341; # dzil authordeps
-use Dist::Zilla::Plugin::CheckChangesHasContent         qw();
-use Dist::Zilla::Plugin::CheckExtraTests                qw();
-use Dist::Zilla::Plugin::Clean                          qw();
-use Dist::Zilla::Plugin::CopyFilesFromBuild             qw(); # to copy specified files
-use Dist::Zilla::Plugin::Git::Check                     qw();
-use Dist::Zilla::Plugin::Git::Commit                    qw();
-use Dist::Zilla::Plugin::GitHub                    0.13 qw(); # Support for pointing to parent forks
-use Dist::Zilla::Plugin::Git::NextVersion               qw();
-use Dist::Zilla::Plugin::Git::Tag              1.112380 qw(); # Support for signed tags
-use Dist::Zilla::Plugin::InstallGuide                   qw();
-use Dist::Zilla::Plugin::InstallRelease           0.006 qw(); # to detect failed installs
-use Dist::Zilla::Plugin::MinimumPerl              1.003 qw(); # to ignore non-perl files
-use Dist::Zilla::Plugin::OurPkgVersion                  qw();
-use Dist::Zilla::Plugin::PodWeaver                      qw();
-use Dist::Zilla::Plugin::ReadmeFromPod                  qw();
-use Dist::Zilla::Plugin::SurgicalPodWeaver       0.0015 qw(); # to avoid circular dependencies
-use Dist::Zilla::Plugin::Twitter                  0.010 qw(); # Support for choosing WWW::Shorten::$site via WWW::Shorten::Simple
-use Dist::Zilla::PluginBundle::TestingMania       0.009 qw(); # better deps tree & PodLinkTests; ChangesTests
-use Pod::Weaver::PluginBundle::Author::DOHERTY    0.004 qw(); # new name
-use Pod::Weaver::Section::BugsAndLimitations   1.102670 qw(); # to read from D::Z::P::Bugtracker
-use WWW::Shorten::IsGd                                  qw(); # Shorten with WWW::Shorten::IsGd
-use WWW::Shorten::Googl                                 qw();
-
 with 'Dist::Zilla::Role::PluginBundle::Easy';
 
 
@@ -45,8 +21,8 @@ sub configure {
         my $defaults = {
             changelog       => 'Changes',
             twitter         => 1,
-            version_regexp  => '^(v?.+)$',
-            tag_format      => '%v%t',
+            version_regexp  => '^v?(.+)$',
+            tag_format      => 'v%v%t',
             fake_release    => 0,
             surgical        => 0,
             push_to         => 'origin',
@@ -74,7 +50,7 @@ sub configure {
 
         # Gather & prune
         'GatherDir',
-        [ 'PruneFiles' => { filenames => \@dzil_files_for_scm } ], # Required by CopyFilesFromBuild
+        [ 'PruneFiles' => { filenames => [@dzil_files_for_scm] } ], # Required by CopyFilesFromBuild
         'PruneCruft',
         'ManifestSkip',
 
@@ -86,6 +62,7 @@ sub configure {
         'GitHub::Meta',
         'MetaJSON',
         'MetaYAML',
+        [ 'MetaNoIndex' => { dir => [qw(corpus)] } ],
 
         # File munging
         ( $conf->{surgical}
@@ -171,7 +148,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version v0.23
+version 0.24
 
 =head1 SYNOPSIS
 
