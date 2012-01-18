@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.24'; # VERSION
+our $VERSION = '0.25'; # VERSION
 
 
 # Dependencies
@@ -148,7 +148,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.24
+version 0.25
 
 =head1 SYNOPSIS
 
@@ -241,12 +241,7 @@ The project homepage is L<http://metacpan.org/release/Dist-Zilla-PluginBundle-Au
 
 The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
-site near you, or see L<http://search.cpan.org/dist/Dist-Zilla-PluginBundle-Author-DOHERTY/>.
-
-The development version lives at L<http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY>
-and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git>.
-Instead of sending patches, please fork this project using the standard
-git and github infrastructure.
+site near you, or see L<https://metacpan.org/module/Dist::Zilla::PluginBundle::Author::DOHERTY/>.
 
 =head1 SOURCE
 
@@ -255,10 +250,8 @@ and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author
 
 =head1 BUGS AND LIMITATIONS
 
-No bugs have been reported.
-
-Please report any bugs or feature requests through the web interface at
-L<https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues>.
+You can make new bug reports, and view existing ones, through the
+web interface at L<https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues>.
 
 =head1 AUTHOR
 
