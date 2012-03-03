@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.25'; # VERSION
+our $VERSION = '0.26'; # VERSION
 
 
 # Dependencies
@@ -13,6 +13,8 @@ use namespace::autoclean 0.09;
 use Dist::Zilla 4.102341; # dzil authordeps
 with 'Dist::Zilla::Role::PluginBundle::Easy';
 
+
+sub mvp_multivalue_args { qw(push_to) }
 
 sub configure {
     my $self = shift;
@@ -25,7 +27,7 @@ sub configure {
             tag_format      => 'v%v%t',
             fake_release    => 0,
             surgical        => 0,
-            push_to         => 'origin',
+            push_to         => [qw(origin)],
         };
         my $config = $self->config_slice(
             'version_regexp',
@@ -41,7 +43,7 @@ sub configure {
         );
         $defaults->merge($config);
     };
-    my @dzil_files_for_scm = qw(Makefile.PL Build.PL README);
+    my @dzil_files_for_scm = qw(Makefile.PL Build.PL README README.mkdn);
 
     $self->add_plugins(
         # Version number
@@ -56,6 +58,7 @@ sub configure {
 
         # Generate dist files & metadata
         'ReadmeFromPod',
+        'ReadmeMarkdownFromPod',
         'License',
         'MinimumPerl',
         'AutoPrereqs',
@@ -148,7 +151,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.25
+version 0.26
 
 =head1 SYNOPSIS
 
@@ -233,7 +236,13 @@ Default is C<origin>.
 
 C<L<Dist::Zilla>>
 
-=for Pod::Coverage configure
+=begin Pod::Coverage
+
+configure
+
+mvp_multivalue_args
+
+=end Pod::Coverage
 
 =head1 AVAILABILITY
 

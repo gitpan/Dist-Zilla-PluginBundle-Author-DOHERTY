@@ -6,6 +6,7 @@ META.json
 META.yml
 Makefile.PL
 README
+README.mkdn
 lib/Dist/Zilla/PluginBundle/Author/DOHERTY.pm
 t/00-compile.t
 xt/author/critic.t

@@ -48,6 +48,7 @@
             "Dist::Zilla::Plugin::OurPkgVersion" : 0,
             "Dist::Zilla::Plugin::PodWeaver" : 0,
             "Dist::Zilla::Plugin::ReadmeFromPod" : 0,
+            "Dist::Zilla::Plugin::ReadmeMarkdownFromPod" : 0,
             "Dist::Zilla::Plugin::SurgicalPodWeaver" : "0.0015",
             "Dist::Zilla::Plugin::Twitter" : "0.010",
             "Dist::Zilla::PluginBundle::TestingMania" : 0,
@@ -84,6 +85,6 @@
          "web" : "https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY"
       }
    },
-   "version" : "0.25"
+   "version" : "0.26"
 }
 

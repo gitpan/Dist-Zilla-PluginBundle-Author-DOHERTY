@@ -37,6 +37,7 @@ requires:
   Dist::Zilla::Plugin::OurPkgVersion: 0
   Dist::Zilla::Plugin::PodWeaver: 0
   Dist::Zilla::Plugin::ReadmeFromPod: 0
+  Dist::Zilla::Plugin::ReadmeMarkdownFromPod: 0
   Dist::Zilla::Plugin::SurgicalPodWeaver: 0.0015
   Dist::Zilla::Plugin::Twitter: 0.010
   Dist::Zilla::PluginBundle::TestingMania: 0
@@ -55,4 +56,4 @@ resources:
   bugtracker: https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues
   homepage: http://metacpan.org/release/Dist-Zilla-PluginBundle-Author-DOHERTY/
   repository: git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git
-version: 0.25
+version: 0.26
