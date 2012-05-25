@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.26'; # VERSION
+our $VERSION = '0.27'; # VERSION
 
 
 # Dependencies
@@ -28,6 +28,7 @@ sub configure {
             fake_release    => 0,
             surgical        => 0,
             push_to         => [qw(origin)],
+            github          => 1,
         };
         my $config = $self->config_slice(
             'version_regexp',
@@ -38,6 +39,7 @@ sub configure {
             'surgical',
             'critic_config',
             'push_to',
+            'github',
             { enable_tests  => 'enable'  },
             { disable_tests => 'disable' },
         );
@@ -62,7 +64,7 @@ sub configure {
         'License',
         'MinimumPerl',
         'AutoPrereqs',
-        'GitHub::Meta',
+        ( $conf->{github} ? 'GitHub::Meta' : () ),
         'MetaJSON',
         'MetaYAML',
         [ 'MetaNoIndex' => { dir => [qw(corpus)] } ],
@@ -93,7 +95,10 @@ sub configure {
         'ConfirmRelease',
 
         # Release
-        ( $conf->{fake_release} ? 'FakeRelease' : 'UploadToCPAN' ),
+        ( $conf->{fake_release}
+            ? 'FakeRelease'
+            : ('UploadToCPAN', 'SchwartzRatio')
+        ),
 
         # After release
         [ 'CopyFilesFromBuild' => { copy => \@dzil_files_for_scm } ],
@@ -111,7 +116,7 @@ sub configure {
             signed      => 1,
         } ],
         [ 'Git::Push' => { push_to => $conf->{push_to} } ],
-        [ 'GitHub::Update' => { metacpan => 1 } ],
+        ( $conf->{github} ? [ 'GitHub::Update' => { metacpan => 1 } ] : () ),
     );
     $self->add_plugins([ 'Twitter' => {
             hash_tags => '#perl #cpan',
@@ -151,7 +156,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.26
+version 0.27
 
 =head1 SYNOPSIS
 
@@ -230,6 +235,11 @@ C<push_to> is the git remote to push to; can be specified multiple times.
 
 Default is C<origin>.
 
+=item *
+
+C<github> is a boolean specifying whether to use the plugins
+L<Dist::Zilla::Plugin::GitHub::Meta> and L<Dist::Zilla::Plugin::GitHub::Update>.
+
 =back
 
 =head1 SEE ALSO
@@ -246,21 +256,14 @@ mvp_multivalue_args
 
 =head1 AVAILABILITY
 
-The project homepage is L<http://metacpan.org/release/Dist-Zilla-PluginBundle-Author-DOHERTY/>.
-
 The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
 site near you, or see L<https://metacpan.org/module/Dist::Zilla::PluginBundle::Author::DOHERTY/>.
 
-=head1 SOURCE
-
-The development version is on github at L<http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY>
-and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git>
-
 =head1 BUGS AND LIMITATIONS
 
 You can make new bug reports, and view existing ones, through the
-web interface at L<https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues>.
+web interface at L<http://rt.cpan.org>.
 
 =head1 AUTHOR
 
