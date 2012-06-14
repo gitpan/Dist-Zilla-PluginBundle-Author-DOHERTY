@@ -1,87 +1,95 @@
 NAME
-    Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like
-    DOHERTY
+    Google::Code::Upload - upload files to a Google Code project
 
 VERSION
-    version 0.27
+    version 0.006
 
 SYNOPSIS
-        # in dist.ini
-        [@Author::DOHERTY]
+        use Google::Code::Upload;
+        my $gc = Google::Code::Upload->new(
+            project  => 'myproject',
+            username => 'mike',
+            password => 'abc123',
+        );
+        $gc->upload(
+            file        => 'README',
+            summary     => 'README for myproject',
+            labels      => ['Featured'],
+            description => 'Hello world',
+        );
 
 DESCRIPTION
-    "Dist::Zilla::PluginBundle::Author::DOHERTY" provides shorthand for a
-    Dist::Zilla configuration that does what Mike wants.
+    It's an incomplete Perl port of
+    <https://support.googlecode.com/svn/trunk/scripts/googlecode_upload.py>
 
-USAGE
-    Just put "[@Author::DOHERTY]" in your dist.ini. You can supply the
-    following options:
+    Basically you need googlecode_upload script instead.
 
-    *   "fake_release" specifies whether to use "FakeRelease" instead of
-        "UploadToCPAN".
+METHODS
+  new
+    Constructs a new "Google::Code::Upload" object. Takes the following
+    key-value pairs:
 
-        Default is false.
+    username
+    password (your Google Code password from
+    <https://code.google.com/hosting/settings>)
+    project
+    ua - something that works like a LWP::UserAgent (*optional*)
 
-    *   "enable_tests" is a comma-separated list of testing plugins to add
-        to "TestingMania".
+  upload
+    Upload the given file to Google Code. Requires the following key-value
+    pairs:
 
-        Default is none.
+    file - the filename of the file to upload
+    summary - the one-line summary to give to the file (defaults to the
+    filename)
+    description - text describing the upload in more detail (for example,
+    the changelog entry for this release)
+    labels - an arrayref of labels like "Featured", "Type-Archive" or
+    "OpSys-All"
 
-    *   "disable_tests" is a comma-separated list of testing plugins to skip
-        in "TestingMania".
+    Returns the URL where the file can be downloaded if successful -
+    otherwise, dies with the HTTP status line.
 
-        Default is none.
+    You can also export the "upload" function, if you don't want to use OO
+    style. Instead of key-value pairs, specify the arguments in the
+    following order:
 
-    *   "tag_format" specifies how a git release tag should be named. This
-        is passed to "Git::Tag".
+        use Google::Code::Upload qw(upload);
+        upload( $file, $project_name, $username, $password, $summary, $labels, $description );
 
-        Default is " %v%t ".
-
-    *   "version_regexp" specifies a regexp to find the version number part
-        of a git release tag. This is passed to "Git::NextVersion".
-
-        Default is "^(v.+)$".
-
-    *   "twitter" says whether releases of this module should be tweeted.
-
-        Default is true.
-
-    *   "surgical" says to use Dist::Zilla::Plugin::SurgicalPodWeaver.
-
-        Default is false.
-
-    *   "changelog" is the filename of the changelog.
-
-        Default is Changes.
-
-    *   "push_to" is the git remote to push to; can be specified multiple
-        times.
-
-        Default is "origin".
-
-    *   "github" is a boolean specifying whether to use the plugins
-        Dist::Zilla::Plugin::GitHub::Meta and
-        Dist::Zilla::Plugin::GitHub::Update.
-
-SEE ALSO
-    "Dist::Zilla"
+EXPORTS
+    You may optionally export "upload" to use this module in a non-OO
+    manner.
 
 AVAILABILITY
+    The project homepage is
+    <http://metacpan.org/release/Dist-Zilla-PluginBundle-Author-DOHERTY/>.
+
     The latest version of this module is available from the Comprehensive
     Perl Archive Network (CPAN). Visit <http://www.perl.com/CPAN/> to find a
     CPAN site near you, or see
     <https://metacpan.org/module/Dist::Zilla::PluginBundle::Author::DOHERTY/
     >.
 
+SOURCE
+    The development version is on github at
+    <http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY> and
+    may be cloned from
+    <git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git>
+
 BUGS AND LIMITATIONS
     You can make new bug reports, and view existing ones, through the web
-    interface at <http://rt.cpan.org>.
+    interface at
+    <https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issue
+    s>.
 
-AUTHOR
-    Mike Doherty <doherty@cpan.org>
+AUTHORS
+    *   Fayland Lam <fayland@gmail.com>
+
+    *   Mike Doherty <doherty@cpan.org>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2010 by Mike Doherty.
+    This software is copyright (c) 2012 by Fayland Lam <fayland@gmail.com>.
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.
