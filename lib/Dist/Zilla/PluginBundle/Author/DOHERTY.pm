@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
 use strict;
 use warnings;
-our $VERSION = '0.28'; # VERSION
+our $VERSION = '0.29'; # VERSION
 
 
 # Dependencies
@@ -89,7 +89,7 @@ sub configure {
         [ 'CheckChangesHasContent' => { changelog => $conf->{changelog} } ],
         [ 'Git::Check' => {
             changelog => $conf->{changelog},
-            allow_dirty => [$conf->{changelog}, @dzil_files_for_scm],
+            allow_dirty => ['dist.ini', $conf->{changelog}, @dzil_files_for_scm],
         } ],
         'TestRelease',
         'CheckExtraTests',
@@ -157,7 +157,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.28
+version 0.29
 
 =head1 SYNOPSIS
 
