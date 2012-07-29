@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.30'; # VERSION
+our $VERSION = '0.31'; # VERSION
 
 
 use feature qw(say);
@@ -116,6 +116,21 @@ has authoritative_fork => (
     isa => 'Bool',
     lazy => 1,
     default => sub { $_[0]->payload->{authoritative_fork} || 0 },
+);
+
+
+has has_version => (
+    is      => 'ro',
+    isa     => 'Bool',
+    lazy    => 1,
+    default => sub { $_[0]->payload->{has_version} // 1 },
+);
+
+has strict_version => (
+    is      => 'ro',
+    isa     => 'Bool',
+    lazy    => 1,
+    default => sub { $_[0]->payload->{strict_version} // 0 },
 );
 
 
@@ -287,6 +302,8 @@ sub configure {
             enable          => $self->enable_tests,
             disable         => $self->disable_tests,
             changelog       => $self->changelog,
+            has_version     => $self->has_version,
+            strict_version  => $self->strict_version,
             ($self->critic_config ? (critic_config => $self->critic_config) : ()),
         }
      );
@@ -315,7 +332,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.30
+version 0.31
 
 =head1 SYNOPSIS
 
@@ -444,6 +461,12 @@ tarball sitting there for you to do with as you will.
 =back
 
 In the future, there might be an option to scp the tarball somewhere.
+
+=item *
+
+C<has_version> and C<strict_version> set options in L<Dist::Zilla::PluginBundle::TestingMania>,
+which passes them along to L<Dist::Zilla::Plugin::Test::Version> and thus
+L<Test::Version>. They set C<has_version> and C<is_strict> respectively.
 
 =back
 
