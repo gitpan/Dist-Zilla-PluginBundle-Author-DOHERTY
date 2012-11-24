@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.31'; # VERSION
+our $VERSION = '0.32'; # VERSION
 
 
 use feature qw(say);
@@ -17,11 +17,27 @@ use Moose::Util::TypeConstraints;
 use namespace::autoclean 0.09;
 
 
+has makemaker => (
+    is => 'rw',
+    isa => 'Bool',
+    lazy => 1,
+    default => sub { $_[0]->payload->{makemaker} // 1 },
+);
+
+
+has modulebuild => (
+    is => 'rw',
+    isa => 'Bool',
+    lazy => 1,
+    default => sub { $_[0]->payload->{modulebuild} // 1 },
+);
+
+
 has fake_release => (
     is  => 'rw',
     isa => 'Bool',
     lazy => 1,
-    default => sub { $_[0]->payload->{fake_release} || 0 },
+    default => sub { $_[0]->payload->{fake_release} // 0 },
 );
 
 
@@ -29,7 +45,7 @@ has enable_tests => (
     is => 'ro',
     isa => 'ArrayRef[Str]',
     lazy => 1,
-    default => sub { defined $_[0]->payload->{enable_tests} || [] },
+    default => sub { $_[0]->payload->{enable_tests} // [] },
 );
 
 
@@ -37,7 +53,7 @@ has disable_tests => (
     is => 'ro',
     isa => 'ArrayRef[Str]',
     lazy => 1,
-    default => sub { $_[0]->payload->{disable_tests} || [] },
+    default => sub { $_[0]->payload->{disable_tests} // [] },
 );
 
 
@@ -45,7 +61,7 @@ has tag_format => (
     is => 'ro',
     isa => 'Str',
     lazy => 1,
-    default => sub { $_[0]->payload->{tag_format} || 'v%v%t' },
+    default => sub { $_[0]->payload->{tag_format} // 'v%v%t' },
 );
 
 
@@ -53,7 +69,7 @@ has version_regexp => (
     is => 'ro',
     isa => 'Str',
     lazy => 1,
-    default => sub { $_[0]->payload->{version_regexp} || '^v?([\d.]+)(?:-TRIAL)?$' },
+    default => sub { $_[0]->payload->{version_regexp} // '^v?([\d.]+)(?:-TRIAL)?$' },
 );
 
 
@@ -61,7 +77,7 @@ has twitter => (
     is => 'ro',
     isa => 'Bool',
     lazy => 1,
-    default => sub { defined $_[0]->payload->{twitter} ? $_[0]->payload->{twitter} : 1 },
+    default => sub { $_[0]->payload->{twitter} // 1 },
 );
 
 
@@ -69,7 +85,7 @@ has surgical => (
     is => 'ro',
     isa => 'Bool',
     lazy => 1,
-    default => sub { $_[0]->payload->{surgical} || 0 },
+    default => sub { $_[0]->payload->{surgical} // 0 },
 );
 
 
@@ -77,7 +93,7 @@ has changelog => (
     is  => 'ro',
     isa => 'Str',
     lazy => 1,
-    default => sub { $_[0]->payload->{changelog} || 'Changes' },
+    default => sub { $_[0]->payload->{changelog} // 'Changes' },
 );
 
 
@@ -85,7 +101,7 @@ has push_to => (
     is => 'ro',
     isa => 'ArrayRef[Str]',
     lazy => 1,
-    default => sub { $_[0]->payload->{push_to} || [qw(origin)] },
+    default => sub { $_[0]->payload->{push_to} // [qw(origin)] },
 );
 
 
@@ -93,7 +109,7 @@ has github => (
     is  => 'ro',
     isa => 'Bool',
     lazy => 1,
-    default => sub { defined $_[0]->payload->{github} ? $_[0]->payload->{github} : 1 },
+    default => sub { $_[0]->payload->{github} // 1 },
 );
 
 
@@ -115,7 +131,7 @@ has authoritative_fork => (
     is  => 'ro',
     isa => 'Bool',
     lazy => 1,
-    default => sub { $_[0]->payload->{authoritative_fork} || 0 },
+    default => sub { $_[0]->payload->{authoritative_fork} // 0 },
 );
 
 
@@ -161,7 +177,7 @@ has noindex_dirs => (
     is  => 'ro',
     isa => 'ArrayRef[Str]',
     lazy => 1,
-    default => sub { $_[0]->payload->{noindex_dirs} || [qw(corpus inc examples)] },
+    default => sub { $_[0]->payload->{noindex_dirs} // [qw(corpus inc examples)] },
 );
 
 sub mvp_multivalue_args { qw(push_to release_to disable_tests enable_tests) }
@@ -192,7 +208,6 @@ sub configure {
         # Version number
         [ 'Git::NextVersion' => { version_regexp => $self->version_regexp } ],
         'OurPkgVersion',
-        'Git::Describe',
     );
 
     $self->add_plugins(
@@ -231,9 +246,9 @@ sub configure {
         # Build system
         'ExecDir',
         'ShareDir',
-        'MakeMaker',
-        'ModuleBuild',
-        'DualBuilders',
+        ('MakeMaker')x!!$self->makemaker,
+        ('ModuleBuild')x!!$self->modulebuild,
+        ('DualBuilders')x!!($self->makemaker && $self->modulebuild),
     );
 
     $self->add_plugins(
@@ -243,6 +258,8 @@ sub configure {
 
     $self->add_plugins(
         # Before release
+        # 'Git::CheckFor::CorrectBranch',
+        # 'Git::CheckFor::Fixups',
         [ 'CheckChangesHasContent' => { changelog => $self->changelog } ],
         [ 'Git::Check' => {
             changelog => $self->changelog,
@@ -259,15 +276,15 @@ sub configure {
     else {
         if ( any { $_ =~ m/^local$/i } @{ $self->release_to } ) {
             $self->add_plugins('FakeRelease');
-            say '[@Author::DOHERTY] Releasing locally';
+            say STDERR '[@Author::DOHERTY] Releasing locally';
         }
         if ( any { $_ =~ m/^(?:CPAN|PAUSE)$/i } @{ $self->release_to } ) {
             $self->add_plugins('UploadToCPAN', 'SchwartzRatio');
-            say '[@Author::DOHERTY] Releasing to CPAN';
+            say STDERR '[@Author::DOHERTY] Releasing to CPAN';
         }
         if ( any { $_ =~ m/^Google(?:Code)?$/i } @{ $self->release_to } ) {
             $self->add_plugins(['UploadToGoogleCode' => { project => $self->googlecode_project }]);
-            say '[@Author::DOHERTY] Releasing to Google Code';
+            say STDERR '[@Author::DOHERTY] Releasing to Google Code';
         }
     }
 
@@ -332,7 +349,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.31
+version 0.32
 
 =head1 SYNOPSIS
 
@@ -350,6 +367,16 @@ Just put C<[@Author::DOHERTY]> in your F<dist.ini>. You can supply the following
 options:
 
 =over 4
+
+=item *
+
+C<makemaker> specifies whether to generate a standard L<ExtUtils::MakeMaker>
+build tool. Default is true.
+
+=item *
+
+C<modulebuild> specifies whether to generate a standard L<Module::Build> build
+tool. Default is true.
 
 =item *
 

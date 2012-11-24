@@ -1,5 +1,14 @@
 Revision history for Perl module Dist-Zilla-PluginBundle-Author-DOHERTY
 
+0.32      2012-11-24
+    * Check that we're on the right branch before releasing
+    * Check that there are no fixup! or squash! commits
+    * Require Git::Check 1.122460 - allow_dirty is once again an
+      exact string match, but if your repo_root is not the dzil
+      root, then the paths in allow_dirty are interpreted
+      relative to the dzil root, instead of the repo_root [RT #78898]
+    * Permit setting whether to include MB or EUMM tools
+
 0.31      2012-07-29
     * Allow setting is_strict and has_version in Test::Version
 
