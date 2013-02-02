@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.32'; # VERSION
+our $VERSION = '0.33'; # VERSION
 
 
 use feature qw(say);
@@ -17,19 +17,11 @@ use Moose::Util::TypeConstraints;
 use namespace::autoclean 0.09;
 
 
-has makemaker => (
+has custom_build => (
     is => 'rw',
     isa => 'Bool',
     lazy => 1,
-    default => sub { $_[0]->payload->{makemaker} // 1 },
-);
-
-
-has modulebuild => (
-    is => 'rw',
-    isa => 'Bool',
-    lazy => 1,
-    default => sub { $_[0]->payload->{modulebuild} // 1 },
+    default => sub { $_[0]->payload->{custom_build} // 0 },
 );
 
 
@@ -170,7 +162,13 @@ has dzil_files_for_scm => (
     is  => 'ro',
     isa => 'ArrayRef[Str]',
     lazy => 1,
-    default => sub { [qw( Makefile.PL Build.PL README README.mkdn )] },
+    default => sub {
+        my $self = shift;
+        return [
+            (qw/ Build.PL Makefile.PL /)x!$self->custom_build,
+            qw/ README README.mkdn /,
+        ];
+    },
 );
 
 has noindex_dirs => (
@@ -212,12 +210,16 @@ sub configure {
 
     $self->add_plugins(
         # Gather & prune
-        'GatherDir',
-        [ 'PruneFiles' => { filenames => $self->dzil_files_for_scm } ], # Required by CopyFilesFromBuild
+        [ 'GatherDir' => {
+            exclude_filename => [
+                @{$self->dzil_files_for_scm},           # Required by CopyFilesFromBuild
+                (qw/ MANIFEST /)x!$self->custom_build,  # Required by CustomBuild
+            ]
+        }],
         'PruneCruft',
         'ManifestSkip',
     );
-    
+
     $self->add_plugins(
         # Generate dist files & metadata
         'ReadmeFromPod',
@@ -246,15 +248,14 @@ sub configure {
         # Build system
         'ExecDir',
         'ShareDir',
-        ('MakeMaker')x!!$self->makemaker,
-        ('ModuleBuild')x!!$self->modulebuild,
-        ('DualBuilders')x!!($self->makemaker && $self->modulebuild),
+        ( $self->custom_build
+            ? 'ModuleBuild::Custom'
+            : (qw/ MakeMaker ModuleBuild DualBuilders /)
+        ),
     );
 
-    $self->add_plugins(
-        # Manifest stuff must come after generated files
-        'Manifest',
-    );
+    # Manifest stuff must come after generated files
+    $self->add_plugins('Manifest');
 
     $self->add_plugins(
         # Before release
@@ -337,8 +338,8 @@ __PACKAGE__->meta->make_immutable;
 
 1;
 
-
 __END__
+
 =pod
 
 =encoding utf-8
@@ -349,7 +350,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.32
+version 0.33
 
 =head1 SYNOPSIS
 
@@ -370,13 +371,9 @@ options:
 
 =item *
 
-C<makemaker> specifies whether to generate a standard L<ExtUtils::MakeMaker>
-build tool. Default is true.
-
-=item *
-
-C<modulebuild> specifies whether to generate a standard L<Module::Build> build
-tool. Default is true.
+C<custom_build> specifies to use L<Dist::Zilla::Plugin::ModuleBuild::Custom>
+instead of generating boilerplate L<ExtUtils::MakeMaker> and L<Module::Build>
+build tools.
 
 =item *
 
@@ -563,4 +560,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-

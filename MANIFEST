@@ -2,11 +2,13 @@ Build.PL
 Changes
 LICENSE
 MANIFEST
+MANIFEST.SKIP
 META.json
 META.yml
 Makefile.PL
 README
 README.mkdn
+dist.ini
 lib/Dist/Zilla/PluginBundle/Author/DOHERTY.pm
 t/00-compile.t
 xt/author/critic.t
