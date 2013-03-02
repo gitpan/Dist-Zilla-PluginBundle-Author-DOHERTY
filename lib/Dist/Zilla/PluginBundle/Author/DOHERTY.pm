@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.33'; # VERSION
+our $VERSION = '0.34'; # VERSION
 
 
 use feature qw(say);
@@ -78,6 +78,14 @@ has surgical => (
     isa => 'Bool',
     lazy => 1,
     default => sub { $_[0]->payload->{surgical} // 0 },
+);
+
+
+has max_target_perl => (
+    is => 'ro',
+    isa => 'Str',
+    lazy => 1,
+    default => sub { $_[0]->payload->{max_target_perl} // '5.10.1' },
 );
 
 
@@ -177,6 +185,7 @@ has noindex_dirs => (
     lazy => 1,
     default => sub { $_[0]->payload->{noindex_dirs} // [qw(corpus inc examples)] },
 );
+
 
 sub mvp_multivalue_args { qw(push_to release_to disable_tests enable_tests) }
 
@@ -322,7 +331,8 @@ sub configure {
             changelog       => $self->changelog,
             has_version     => $self->has_version,
             strict_version  => $self->strict_version,
-            ($self->critic_config ? (critic_config => $self->critic_config) : ()),
+            max_target_perl => $self->max_target_perl,
+            (critic_config  => $self->critic_config)x!!$self->critic_config,
         }
      );
 
@@ -350,7 +360,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.33
+version 0.34
 
 =head1 SYNOPSIS
 
@@ -422,6 +432,14 @@ Default is true.
 C<surgical> says to use L<Dist::Zilla::Plugin::SurgicalPodWeaver>.
 
 Default is false.
+
+=item *
+
+C<max_target_perl> is the highest minimum version of perl you intend to require.
+This is passed to L<Dist::Zilla::Plugin::Test::MinimumVersion>, which generates
+a F<minimum-version.t> test that'll warn you if you accidentally used features
+from a higher version of perl than you wanted. (Having a lower required version
+of perl is okay.)
 
 =item *
 
