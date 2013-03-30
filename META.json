@@ -4,7 +4,7 @@
       "Mike Doherty <doherty@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300030, CPAN::Meta::Converter version 2.120921",
+   "generated_by" : "Dist::Zilla version 4.300032, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -41,7 +41,8 @@
       },
       "runtime" : {
          "requires" : {
-            "Dist::Zilla" : "4.300030",
+            "Dist::Zilla" : "4.300032",
+            "Dist::Zilla::App::Command::cover" : "0",
             "Dist::Zilla::Plugin::CheckChangesHasContent" : "0",
             "Dist::Zilla::Plugin::CheckExtraTests" : "0",
             "Dist::Zilla::Plugin::Clean" : "0",
@@ -95,6 +96,6 @@
       "bugtracker" : {},
       "repository" : {}
    },
-   "version" : "0.34"
+   "version" : "0.35"
 }
 
