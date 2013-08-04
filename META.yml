@@ -3,14 +3,14 @@ abstract: 'configure Dist::Zilla like DOHERTY'
 author:
   - 'Mike Doherty <doherty@cpan.org>'
 build_requires:
-  File::Find: 0
-  File::Temp: 0
+  Capture::Tiny: 0
   Module::Build: 0.3601
-  Test::More: 0
+  Test::More: 0.88
+  blib: 0
 configure_requires:
   Module::Build: 0.3601
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300032, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.131560'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -63,4 +63,4 @@ requires:
   strict: 0
   warnings: 0
 resources: {}
-version: 0.35
+version: 0.36

@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.35'; # VERSION
+our $VERSION = '0.36'; # VERSION
 
 
 use feature qw(say);
@@ -150,6 +150,14 @@ has strict_version => (
 );
 
 
+has sharedir => (
+    is => 'ro',
+    isa => 'Str',
+    lazy => 1,
+    default => sub { $_[0]->payload->{sharedir} },
+);
+
+
 enum 'ReleaseTarget', [qw( CPAN PAUSE Google GoogleCode local )];
 
 has release_to => (
@@ -225,6 +233,10 @@ sub configure {
                 (qw/ MANIFEST /)x!$self->custom_build,  # Required by CustomBuild
             ]
         }],
+        ( $self->sharedir
+            ? [ 'ShareDir' => { dir => $self->sharedir } ]
+            : 'ShareDir'
+        ),
         'PruneCruft',
         'ManifestSkip',
     );
@@ -256,7 +268,6 @@ sub configure {
     $self->add_plugins(
         # Build system
         'ExecDir',
-        'ShareDir',
         ( $self->custom_build
             ? 'ModuleBuild::Custom'
             : (qw/ MakeMaker ModuleBuild DualBuilders /)
@@ -360,7 +371,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.35
+version 0.36
 
 =head1 SYNOPSIS
 
@@ -509,6 +520,11 @@ In the future, there might be an option to scp the tarball somewhere.
 C<has_version> and C<strict_version> set options in L<Dist::Zilla::PluginBundle::TestingMania>,
 which passes them along to L<Dist::Zilla::Plugin::Test::Version> and thus
 L<Test::Version>. They set C<has_version> and C<is_strict> respectively.
+
+=item *
+
+C<sharedir> indicates which directory is your dist's share directory. The
+default is F<share>.
 
 =back
 
