@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.36'; # VERSION
+our $VERSION = '0.37'; # VERSION
 
 
 use feature qw(say);
@@ -154,7 +154,7 @@ has sharedir => (
     is => 'ro',
     isa => 'Str',
     lazy => 1,
-    default => sub { $_[0]->payload->{sharedir} },
+    default => sub { $_[0]->payload->{sharedir} // '' },
 );
 
 
@@ -371,7 +371,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.36
+version 0.37
 
 =head1 SYNOPSIS
 
