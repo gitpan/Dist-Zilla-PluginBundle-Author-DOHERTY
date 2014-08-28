@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.37'; # VERSION
+our $VERSION = '0.38'; # VERSION
 
 
 use feature qw(say);
@@ -242,10 +242,19 @@ sub configure {
     );
 
     $self->add_plugins(
+        # File munging
+        ( $self->surgical
+            ? [ 'SurgicalPodWeaver' => { config_plugin => $self->weaver_config } ]
+            : [ 'PodWeaver'         => { config_plugin => $self->weaver_config } ]
+        ),
+    );
+
+    $self->add_plugins(
         # Generate dist files & metadata
         'ReadmeFromPod',
         'ReadmeMarkdownFromPod',
         'License',
+        'InstallGuide',
         'MinimumPerl',
         'AutoPrereqs',
         ( $self->github
@@ -255,14 +264,6 @@ sub configure {
         'MetaJSON',
         'MetaYAML',
         [ 'MetaNoIndex' => { dir => $self->noindex_dirs } ],
-    );
-
-    $self->add_plugins(
-        # File munging
-        ( $self->surgical
-            ? [ 'SurgicalPodWeaver' => { config_plugin => $self->weaver_config } ]
-            : [ 'PodWeaver'         => { config_plugin => $self->weaver_config } ]
-        ),
     );
 
     $self->add_plugins(
@@ -363,7 +364,7 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =head1 NAME
 
@@ -371,7 +372,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.37
+version 0.38
 
 =head1 SYNOPSIS
 
@@ -573,14 +574,21 @@ mvp_multivalue_args
 
 =head1 AVAILABILITY
 
+The project homepage is L<http://metacpan.org/release/Dist-Zilla-PluginBundle-Author-DOHERTY/>.
+
 The latest version of this module is available from the Comprehensive Perl
 Archive Network (CPAN). Visit L<http://www.perl.com/CPAN/> to find a CPAN
 site near you, or see L<https://metacpan.org/module/Dist::Zilla::PluginBundle::Author::DOHERTY/>.
 
+=head1 SOURCE
+
+The development version is on github at L<http://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY>
+and may be cloned from L<git://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY.git>
+
 =head1 BUGS AND LIMITATIONS
 
 You can make new bug reports, and view existing ones, through the
-web interface at L<http://rt.cpan.org>.
+web interface at L<https://github.com/doherty/Dist-Zilla-PluginBundle-Author-DOHERTY/issues>.
 
 =head1 AUTHOR
 
