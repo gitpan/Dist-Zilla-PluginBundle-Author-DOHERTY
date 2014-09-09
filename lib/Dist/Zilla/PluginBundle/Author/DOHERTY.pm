@@ -2,7 +2,7 @@ package Dist::Zilla::PluginBundle::Author::DOHERTY;
 use strict;
 use warnings;
 # ABSTRACT: configure Dist::Zilla like DOHERTY
-our $VERSION = '0.38'; # VERSION
+our $VERSION = '0.39'; # VERSION
 
 
 use feature qw(say);
@@ -127,11 +127,19 @@ has googlecode_project => (
 );
 
 
-has authoritative_fork => (
+has fork_is_authoritative => (
     is  => 'ro',
     isa => 'Bool',
     lazy => 1,
-    default => sub { $_[0]->payload->{authoritative_fork} // 0 },
+    default => sub { $_[0]->payload->{fork_is_authoritative} // 0 },
+);
+
+
+has github_metadata_remote => (
+    is => 'ro',
+    isa => 'Str',
+    lazy => 1,
+    default => sub { $_[0]->payload->{github_metadata_remote} // 'origin' },
 );
 
 
@@ -249,6 +257,10 @@ sub configure {
         ),
     );
 
+    my %github_meta_settings;
+    $github_meta_settings{fork} = 0 if $self->fork_is_authoritative;
+    $github_meta_settings{remote} //= $self->github_metadata_remote;
+
     $self->add_plugins(
         # Generate dist files & metadata
         'ReadmeFromPod',
@@ -257,10 +269,7 @@ sub configure {
         'InstallGuide',
         'MinimumPerl',
         'AutoPrereqs',
-        ( $self->github
-            ? ($self->authoritative_fork ? ['GitHub::Meta' => { fork => 0 }] : 'GitHub::Meta')
-            : ()
-        ),
+        [ 'GitHub::Meta' => \%github_meta_settings ],
         'MetaJSON',
         'MetaYAML',
         [ 'MetaNoIndex' => { dir => $self->noindex_dirs } ],
@@ -372,7 +381,7 @@ Dist::Zilla::PluginBundle::Author::DOHERTY - configure Dist::Zilla like DOHERTY
 
 =head1 VERSION
 
-version 0.38
+version 0.39
 
 =head1 SYNOPSIS
 
@@ -488,6 +497,14 @@ will point to your stuff on github, instead of wherever you forked from. This
 is useful if your repository on Github is a fork, but you have taken over
 maintaining the module, so people should probably send bug reports to you
 instead of the original author, and should fork from your repo, etc.
+
+=item *
+
+C<github_metadata_remote> tells L<GitHub::Meta|Dist::Zilla::Plugin::GitHub::Meta>
+that this is the Github repository from which to take metadata. This can be freely
+combined with C<fork_is_authoritative> to control whether we "follow the symlink"
+if the repo this points to is a fork. By default, the repo will be extracted from
+the url for the C<origin> remote.
 
 =item *
 

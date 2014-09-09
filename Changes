@@ -1,5 +1,8 @@
 Revision history for Perl module Dist-Zilla-PluginBundle-Author-DOHERTY
 
+0.39      2014-09-08
+  - Allow specifying which remote to get metadata from
+
 0.38      2014-08-27
   - Include intallation instructions
   - Munge POD before converting to README.mkdn
